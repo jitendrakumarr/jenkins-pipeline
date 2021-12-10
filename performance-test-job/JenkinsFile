@@ -39,6 +39,7 @@ pipeline {
       steps {
         script {
           sh "cd gatling-fw"
+					sh "pwd"
           sh "mvn -X install"
         }
       }
@@ -47,7 +48,6 @@ pipeline {
     stage('start execution') {
       steps {
         script {
-					sh "pwd"
           sh "mvn -X gatling:test -Dgatling.simulationClass=com.zepto.simulations.FirstSimulation"
         }
       }
