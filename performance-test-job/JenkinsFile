@@ -53,12 +53,12 @@ pipeline {
     stage('reporting') {
       steps {
         script {
-          /* if (params.Environment == 'destroy') {
-            sh "sudo terraform init"
-            sh "sudo terraform destroy -auto-approve"
-          }*/
+           if (params.Environment == 'qa') {
+            sh "echo test"
+          }
         }
       }
     }
+		
   }
 }
