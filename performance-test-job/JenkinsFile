@@ -1,84 +1,64 @@
 pipeline {
-agent any
-     stages {
-
-        stage('Setup parameters') {
-                    steps {
-                        script {
-                            properties([
-                                parameters([
-                                    choice(
-                                            choices: ['create','destroy'],
-                                            name: 'Operation',
-                                            description: 'What you want to do?.'
-                                    ),
-                                    string(
-                                            defaultValue: '1',
-                                            name: 'instance_count',
-                                            description: 'How many instances of the machine.',
-                                            trim: true
-                                    ),
-                                    string(
-                                            defaultValue: 't3a.medium',
-                                            description: 'AWS EC2 instance type e.g: t2.micro ',
-                                            name: 'instance_type',
-                                            trim: true
-                                    ),
-                                   string(
-                                            defaultValue: 'qa',
-                                            name: 'Environment',
-                                            description: 'Where you want to execute the tests.',
-                                            trim: true
-                                    )
-                                ])
-                            ])
-                        }
-                    }
+  agent any
+  stages {
+    stage('Setup parameters') {
+      steps {
+        script {
+          properties([
+            parameters([
+              choice(
+                choices: ['dev', 'qa'],
+                name: 'Environment',
+                description: 'Which environment?.'
+              ),
+              string(
+                defaultValue: '1',
+                name: 'Machine IP',
+                description: 'machine ip where test will be executed.',
+                trim: true
+              )
+            ])
+          ])
         }
+      }
+    }
 
-        stage('create') {
-         	steps {
-         		script {
-         			if (params.Operation == 'create') {
-         				sh "sudo terraform init"
-					   					}
-				}
-			}
-		}
+    stage('clone performance repo') {
+      steps {
+        script {
+          sh "git clone https://github.com/jitendrakumarr/gatling-fw.git"
+        }
+      }
+    }
 
-		stage('clone performance repo') {
-         	steps {
-         		script {
-         			sh "git clone git@github.com:zeptonow/zepto-performance-engg.git"
-				}
-			}
-		}
+    stage('goto dir and install dependancy') {
+      steps {
+        script {
+          sh "cd gatling-fw"
+					sh "mvn install"
+        }
+      }
+    }
 
-        stage('ssh and copy script') {
-         	steps {
-         		script {
-         			sh "pwd"
-				}
-			}
-		}
+    stage('start execution') {
+      steps {
+        script {
+					sh "pwd"
+					sh "cd gatling-fw"
+          sh "mvn gatling:test -Dgatling.simulationClass=com.zepto.simulations.FirstSimulation"
+        }
+      }
+    }
 
-		stage('start execution') {
-         	steps {
-         		script {
-         			sh "mvn gatling:test -Dgatling.simulationClass=com.zepto.simulations.CategoryAPITests"
-				}
-			}
-		}
-
-		stage('destroy') {
-         	steps {
-         		script {
-         			if (params.Operation == 'destroy') {
-         				sh "sudo terraform init"
-					    sh "sudo terraform destroy -auto-approve"
-		            }
-		        }
-		    }
-		}
-     }
+    stage('reporting') {
+      steps {
+        script {
+          /* if (params.Environment == 'destroy') {
+            sh "sudo terraform init"
+            sh "sudo terraform destroy -auto-approve"
+          }*/
+        }
+      }
+    }
+  }
 }
