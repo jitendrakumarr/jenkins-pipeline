@@ -31,6 +31,7 @@ pipeline {
         script {
 					sh "rm -rf gatling-fw"
           sh "git clone https://github.com/jitendrakumarr/gatling-fw.git"
+					sh "pwd"
         }
       }
     }
