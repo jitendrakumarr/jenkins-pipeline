@@ -9,7 +9,7 @@ pipeline {
             parameters([
               choice(
                 choices: ['dev', 'qa'],
-                name: 'Environment',
+                name: 'Env',
                 description: 'Which environment?.'
               ),
               string(
@@ -62,7 +62,7 @@ pipeline {
           dir("gatling-fw") {
     			sh "pwd"
 					sh "mvn install"
-          sh "mvn gatling:test -Dgatling.simulationClass=simulations.${SimulationClassFile} -Denv=${Environment} -Dusers=${Users} -Drampup=${Rampup} -Dduration=${DurationUnit}"
+          sh "mvn gatling:test -Dgatling.simulationClass=simulations.${SimulationClassFile} -Denv=${Env} -Dusers=${Users} -Drampup=${Rampup} -Dduration=${DurationUnit}"
 				}
       }
     }
