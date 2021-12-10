@@ -15,9 +15,15 @@ pipeline {
                 description: 'Which environment?.'
               ),
               string(
-                defaultValue: '1',
-                name: 'Machine IP',
+                defaultValue: '192.168.1.11',
+                name: 'MachineIP',
                 description: 'machine ip where test will be executed.',
+                trim: true
+              ),
+							string(
+                defaultValue: 'FirstSimulation',
+                name: 'SimulationClassFile',
+                description: 'The class which is created under simulation package.',
                 trim: true
               )
             ])
@@ -36,12 +42,12 @@ pipeline {
       }
     }
 
-    stage('goto dir and install dependancy') {
+    stage('goto project dir and install dependancies') {
       steps {
           dir("gatling-fw") {
     			sh "pwd"
 					sh "mvn install"
-          sh "mvn gatling:test -Dgatling.simulationClass=simulations.FirstSimulation"
+          sh "mvn gatling:test -Dgatling.simulationClass=simulations.${SimulationClassFile}"
 				}
       }
     }
@@ -55,6 +61,5 @@ pipeline {
         }
       }
     }
-
   }
 }
