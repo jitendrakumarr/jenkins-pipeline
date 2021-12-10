@@ -62,7 +62,7 @@ pipeline {
           dir("gatling-fw") {
     			sh "pwd"
 					sh "mvn install"
-          sh "mvn gatling:test -Dgatling.simulationClass=simulations.${SimulationClassFile} -Dusers=${Users} -Drampup=${Rampup} -Dduration=${DurationUnit} -Denv=${LoadEnv}"
+          sh "mvn gatling:test -Dgatling.simulationClass=simulations.${SimulationClassFile} -Dusers=${Users} -Drampup=${Rampup} -Dduration=${DurationUnit} -Dtestenv=${LoadEnv}"
 				}
       }
     }
