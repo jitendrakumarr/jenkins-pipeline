@@ -1,0 +1,84 @@
+pipeline {
+agent any
+     stages {
+
+        stage('Setup parameters') {
+                    steps {
+                        script {
+                            properties([
+                                parameters([
+                                    choice(
+                                            choices: ['create','destroy'],
+                                            name: 'Operation',
+                                            description: 'What you want to do?.'
+                                    ),
+                                    string(
+                                            defaultValue: '1',
+                                            name: 'instance_count',
+                                            description: 'How many instances of the machine.',
+                                            trim: true
+                                    ),
+                                    string(
+                                            defaultValue: 't3a.medium',
+                                            description: 'AWS EC2 instance type e.g: t2.micro ',
+                                            name: 'instance_type',
+                                            trim: true
+                                    ),
+                                   string(
+                                            defaultValue: 'qa',
+                                            name: 'Environment',
+                                            description: 'Where you want to execute the tests.',
+                                            trim: true
+                                    )
+                                ])
+                            ])
+                        }
+                    }
+        }
+
+        stage('create') {
+         	steps {
+         		script {
+         			if (params.Operation == 'create') {
+         				sh "sudo terraform init"
+					   					}
+				}
+			}
+		}
+
+		stage('clone performance repo') {
+         	steps {
+         		script {
+         			sh "git clone git@github.com:zeptonow/zepto-performance-engg.git"
+				}
+			}
+		}
+
+        stage('ssh and copy script') {
+         	steps {
+         		script {
+         			sh "pwd"
+				}
+			}
+		}
+
+		stage('start execution') {
+         	steps {
+         		script {
+         			sh "mvn gatling:test -Dgatling.simulationClass=com.zepto.simulations.CategoryAPITests"
+				}
+			}
+		}
+
+		stage('destroy') {
+         	steps {
+         		script {
+         			if (params.Operation == 'destroy') {
+         				sh "sudo terraform init"
+					    sh "sudo terraform destroy -auto-approve"
+		            }
+		        }
+		    }
+		}
+     }
+}
