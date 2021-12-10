@@ -39,7 +39,7 @@ pipeline {
     stage('goto dir and install dependancy') {
       steps {
         script {
-          sh "sudo cd gatling-fw/"
+          sh "cd gatling-fw/"
 					sh "pwd"
           sh "mvn -X install"
         }
