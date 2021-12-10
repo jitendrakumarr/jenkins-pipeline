@@ -1,8 +1,6 @@
 pipeline {
   agent any
-	tools {
-    maven 'M2_HOME'
-  }
+
   stages {
     stage('Setup parameters') {
       steps {
@@ -25,6 +23,24 @@ pipeline {
                 name: 'SimulationClassFile',
                 description: 'The class which is created under simulation package.',
                 trim: true
+              ),
+							string(
+                defaultValue: '50',
+                name: 'Users',
+                description: 'No of users to hit request.',
+                trim: true
+              ),
+							string(
+                defaultValue: '30',
+                name: 'Rampup',
+                description: 'The rampup period.',
+                trim: true
+              ),
+								choice(
+								choices: ['seconds','minutes','hours'],
+                name: 'DurationUnit',
+                description: 'The unit for rampup duration e.g. minutes, seconds or hours',
+                trim: true
               )
             ])
           ])
@@ -37,7 +53,6 @@ pipeline {
         script {
 					sh "rm -rf gatling-fw"
           sh "git clone https://github.com/jitendrakumarr/gatling-fw.git"
-					sh "pwd"
         }
       }
     }
@@ -47,7 +62,7 @@ pipeline {
           dir("gatling-fw") {
     			sh "pwd"
 					sh "mvn install"
-          sh "mvn gatling:test -Dgatling.simulationClass=simulations.${SimulationClassFile}"
+          sh "mvn gatling:test -Dgatling.simulationClass=simulations.${SimulationClassFile} -Denv=${Environment} -Dusers=${Users} -Drampup=${Rampup} -Dduration=${DurationUnit}"
 				}
       }
     }
@@ -56,10 +71,11 @@ pipeline {
       steps {
         script {
            if (params.Environment == 'qa') {
-            sh "echo test"
+            sh "grep \"Please open the following file:\""
           }
         }
       }
     }
+
   }
 }
